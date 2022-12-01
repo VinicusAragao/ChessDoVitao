@@ -18,13 +18,20 @@ header{
   width: 100vw;
   height: 15vh;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: space-around;
+  flex-flow: column;
 }
 h1{
   color: white;
-  font-size: 3vw;
+  font-size: 2vw;
   margin: 0px;
+}
+h2{
+  color: white;
+  font-size: 1.8vw;
+  margin: 0px;
+  transition: 200ms;
 }
 main{
   width: 80vh;
@@ -64,4 +71,11 @@ main{
   margin: auto;
   left: 0px;right: 0px;
   top: 0px;bottom: 0px;
+}
+
+@media screen and (max-width: 700px){
+  main{
+    width: 80vw;
+    height: 80vw;
+  }
 }

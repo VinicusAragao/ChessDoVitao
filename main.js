@@ -1,4 +1,5 @@
 const main = document.getElementsByTagName('main')[0]
+const playerText = document.getElementsByTagName('h2')[0]
 let tileColor = 'black'
 let lineStart = 'black'
 let boardMap = []
@@ -73,6 +74,11 @@ class tile{
     }
   }
 }
+// class piece{
+//   constructor(){
+    
+//   }
+// }
 function checkUndefined(row,cell){
   if(row > 7 || row < 0 || cell > 7 || cell < 0){
     return
@@ -195,43 +201,53 @@ function capitalize(string){
   return string[0].toUpperCase() + string.slice(1)
 }
 function holdPiece(){
-  const path = this.dataset.object
-  grabedObject = boardMap[path[0]][path[1]]
-  if(grabedObject.player === playerOrder){
-    grabedObject.checkPossibleMoves()
-    const tiles = document.getElementsByClassName('cell')
-    for(let i = 0; i < tiles.length;i++){
-      tiles[i].addEventListener('pointerdown',newPieceTile)
-    } 
+  if(!grabing){
+    console.log('pegou')
+    const path = this.dataset.object
+    grabedObject = boardMap[path[0]][path[1]]
+    if(grabedObject.player === playerOrder){
+      grabedObject.checkPossibleMoves()
+      const tiles = document.getElementsByClassName('cell')
+      for(let i = 0; i < tiles.length;i++){
+        tiles[i].addEventListener('pointerdown',newPieceTile)
+      }
+      grabing = true 
+    }
   }
 }
 function newPieceTile(){
-  console.log('soltou')
-  const path = this.dataset.object
-  const newTile = boardMap[path[0]][path[1]]
-  if(newTile.player !== grabedObject.player){
-    console.log('diferente')
-    for(let i = 0; i < grabedObject.possibleMoves.length; i++){
-      if(JSON.stringify(newTile) === JSON.stringify(grabedObject.possibleMoves[i])){
-        createPiece(path[0],path[1],grabedObject.containingPiece,grabedObject.player)
-        setSizes()
-        newTile.htmlElement.addEventListener('pointerdown', holdPiece)
+  if(grabing){
+    const path = this.dataset.object
+    const newTile = boardMap[path[0]][path[1]]
 
-        grabedObject.containingPiece = 'none'
-        grabedObject.player = 'none'
-        grabedObject.possibleMoves = []
-        grabedObject.alreadyPlayed = true
-        grabedObject.htmlElement.removeEventListener('pointerdown', holdPiece)
-        grabedObject.htmlElement.getElementsByClassName('piece')[0].remove()
+    if(newTile.player !== grabedObject.player){
+      for(let i = 0; i < grabedObject.possibleMoves.length; i++){
+        if(JSON.stringify(newTile) === JSON.stringify(grabedObject.possibleMoves[i])){
+          createPiece(path[0],path[1],grabedObject.containingPiece,grabedObject.player)
+          setSizes()
+          newTile.htmlElement.addEventListener('pointerdown', holdPiece)
 
-        const tiles = document.getElementsByClassName('cell')
-        for(let i = 0; i < tiles.length;i++){
-          tiles[i].removeEventListener('pointerdown',newPieceTile)
-        }
-        if(playerOrder === 'white'){
-          playerOrder = 'black'
-        }else if(playerOrder === 'black'){
-          playerOrder = 'white'
+          grabedObject.containingPiece = 'none'
+          grabedObject.player = 'none'
+          grabedObject.possibleMoves = []
+          grabedObject.alreadyPlayed = true
+          grabedObject.htmlElement.removeEventListener('pointerdown', holdPiece)
+          grabedObject.htmlElement.getElementsByClassName('piece')[0].remove()
+
+          const tiles = document.getElementsByClassName('cell')
+          for(let i = 0; i < tiles.length;i++){
+            tiles[i].removeEventListener('pointerdown',newPieceTile)
+          }
+          if(playerOrder === 'white'){
+            playerOrder = 'black'
+            playerText.textContent = 'Preto'
+            playerText.style.color = 'black'
+          }else if(playerOrder === 'black'){
+            playerOrder = 'white'
+            playerText.textContent = 'Branco'
+            playerText.style.color = 'white'
+          }
+          grabing = false
         }
       }
     }

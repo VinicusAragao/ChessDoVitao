@@ -10,37 +10,51 @@ html,body{
   display: flex;
   flex-flow: column;
   align-items: center;
-  overflow: hidden;
+  justify-content: center;
   position: relative;
 }
-header{
-  width: 100vw;
-  height: 20vh;
+main{
+  background-color: #949494;
   display: flex;
-  align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  border-radius: 10px;
+}
+.boardAndTitle{
+  display: flex;
   flex-flow: column;
+  justify-content: space-between;
+  padding: 5px 10px;
+}
+header{
+  margin: 5px 0px;
+  text-align: center;
 }
 h1{
   color: white;
-  font-size: 2vw;
+  font-size: max(1.5vw,14px);
   margin: 0px;
 }
 h2{
-  text-align: center;
-  color: white;
-  background-color: #707070;
-  width: 75vh;
-  margin: 0px;
-  font-size: 1.8vw;
-  transition: color 500ms, width 200ms;
+  font-size: max(3vh,12px);
   border-radius: 15px;
+  background-color: #707070;
+  border: solid 2px black;
+  padding: 2px 15px;
+  margin: 10px 5px 10px 5px;
 }
-main{
-  width: 75vh;
-  height: 75vh;
+.whiteH2::after{
+  content: 'Branco';
+  color: white;
+}
+.blackH2::after{
+  content: 'Preto';
+}
+.board{
+  width: 70vh;
+  height: 70vh;
   position: relative;
   user-select: none;
+  margin: 0px 20px;
 }
 .backgroundImg{
   pointer-events: none;
@@ -49,7 +63,6 @@ main{
   z-index: 1;
   cursor: text;
   position: absolute;
-/*  display: none;*/
 }
 .row{
   display: flex;
@@ -76,9 +89,68 @@ main{
   top: 0px;bottom: 0px;
 }
 
+.optionsSection{
+  width: 30vh;
+  padding: 5px 10px;
+  background-color: #606060;
+  border-radius: 10px;
+  border-bottom-left-radius: 35px;
+  border-top-left-radius: 35px;
+  display: flex;
+  align-items: flex-end; 
+}
+.btnContainer{
+  display: flex;
+  width: 100%;
+  height: 30%;
+  align-items: center;
+  justify-content: space-around;
+  flex-flow: column;
+}
+.timeSelect,
+.playBtn,
+.playerSelect{
+  text-align: center;
+  width: 80%;
+  background-color: #2a2020;
+  border: none;
+  color: white;
+  padding: 5px 0px;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: 100ms;
+}
+.playBtn:active{
+  transform: scale(1.05);
+}
+
 @media screen and (max-width: 700px){
+  body,html{
+    justify-content: flex-start;
+  }
   main{
-    width: 80vw;
-    height: 80vw;
+    width: auto;
+    align-items: center;
+    flex-flow: column;
+  }
+  .board{
+    width: 60vh;
+    height: 60vh;
+  }
+  .optionsSection{
+    border-radius: 0px;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    width: 100%;
+    padding: 20px; 
+  }
+  .btnContainer{
+    flex-flow: row;
+    align-items: flex-end;
+  }
+  .timeSelect,
+  .playBtn,
+  .playerSelect{
+    width: 30%;
   }
 }

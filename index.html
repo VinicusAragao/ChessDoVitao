@@ -8,10 +8,33 @@
   <body>
     <header>
       <h1 title="20">Tabuleiro do Vintão (20) (Vinte) (10100) (0x14)</h1>
-      <h2>Branco</h2>
     </header>
     <main>
-      <img class="backgroundImg" src="images/board.png">
+      <section class="boardAndTitle">
+        <h2 class="blackH2"></h2>
+        <div class="board">
+          <img class="backgroundImg" src="images/board.png">
+        </div>
+        <h2 class="whiteH2"></h2>
+      </section>
+      <section class="optionsSection">
+        <div class="btnContainer">
+          <button onclick="startGame()" class="playBtn">Jogar</button>
+          <select class="timeSelect">
+            <option>10:00</option>
+            <option>05:00</option>
+            <option>03:00</option>
+            <option>01:00</option>
+            <option>00:30</option>
+            <option>Infinito</option>
+          </select>
+          <select onchange="selectFirstPlayer(this)" class="playerSelect">
+            <option value="white">Branco</option>
+            <option value="black">Preto</option>
+            <option>Por Sorte</option>
+          </select>
+        </div>
+      </section>
     </main>
     <script type="text/javascript" src="main.js"></script>
   </body>

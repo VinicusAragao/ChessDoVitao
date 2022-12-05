@@ -1,13 +1,20 @@
-const main = document.getElementsByTagName('main')[0]
-const playerText = document.getElementsByTagName('h2')[0]
+const styleSheet = document.styleSheets[0]
+const board = document.getElementsByClassName('board')[0]
+const playerTexts = document.getElementsByTagName('h2')
+const pieces = document.getElementsByClassName('piece')
+const backGroundImage = document.getElementsByClassName('backgroundImg')[0]
 let tileColor = 'white'
 let lineStart = 'white'
 let boardMap = []
 let grabing = false
 let grabedTile
 let grabedPiece
-let playerOrder = 'white'
-let playerOpposite = 'black'
+let playerOrder
+let playerOpposite
+let alreadyStarted = false
+
+const movingPieceAudio = new Audio('/audio/movePieceCroped.wav')
+console.log(movingPieceAudio)
 
 class tile{
   constructor(element){
@@ -75,10 +82,24 @@ class piece{
         checkMoveWithCollision(row,cell,-1,+1)//bottomRight
     break
     case 'king':
-
+      passMove(row+1,cell,'normal')//top
+      passMove(row-1,cell,'normal')//bottom
+      passMove(row,cell-1,'normal')//left
+      passMove(row,cell+1,'normal')//right
+      passMove(row+1,cell-1,'normal')//topLeft
+      passMove(row+1,cell+1,'normal')//topRight
+      passMove(row-1,cell-1,'normal')//bottomLeft
+      passMove(row-1,cell+1,'normal')//bottomRight
     break
     case 'queen':
-
+        checkMoveWithCollision(row,cell,1,0)//top
+        checkMoveWithCollision(row,cell,0,1)//right
+        checkMoveWithCollision(row,cell,-1,0)//bottom
+        checkMoveWithCollision(row,cell,0,-1)//left
+        checkMoveWithCollision(row,cell,1,-1)//topLeft
+        checkMoveWithCollision(row,cell,1,1)//topRight
+        checkMoveWithCollision(row,cell,-1,-1)//bottomLeft
+        checkMoveWithCollision(row,cell,-1,+1)//bottomRight
     }
   }
 }
@@ -150,12 +171,12 @@ function createBoard(){
   for(let r = 1; r <= 8; r++){
     let rowEl = document.createElement('div')
         rowEl.classList.add('row')
-    main.appendChild(rowEl)
+    board.appendChild(rowEl)
     boardMap.push([])
     createCell(rowEl,r)
   }
-  placePieces()
-  setSizes()
+    placePieces()
+    setSizes()
 }
 function createCell(rowEl,r){
   for(let c = 1; c <= 8; c++){
@@ -266,6 +287,7 @@ function holdPiece(e,optionalElement){
       const tiles = document.getElementsByClassName('cell')
       for(let i = 0; i < tiles.length;i++){
         tiles[i].addEventListener('pointerdown',newPieceTile)
+        tiles[i].removeEventListener('pointerdown', holdPiece)
       }
       grabing = true 
     }
@@ -322,21 +344,20 @@ function movePiece(newPath,newTile){
   newTile.containingPiece = grabedPiece
   console.log(newTile.containingPiece)
 
+  movingPieceAudio.currentTime = 0
+  movingPieceAudio.play()
 
   const tiles = document.getElementsByClassName('cell')
   for(let i = 0; i < tiles.length;i++){
     tiles[i].removeEventListener('pointerdown',newPieceTile)
+    tiles[i].addEventListener('pointerdown', holdPiece)
   }
   if(playerOrder === 'white'){
     playerOrder = 'black'
     playerOpposite = 'white'
-    playerText.textContent = 'Preto'
-    playerText.style.color = 'black'
   }else if(playerOrder === 'black'){
     playerOrder = 'white'
     playerOpposite = 'black'
-    playerText.textContent = 'Branco'
-    playerText.style.color = 'white'
   }
   grabing = false
 }
@@ -344,15 +365,70 @@ window.addEventListener('resize', setSizes)
 function setSizes(){
   const cells = document.getElementsByClassName('cell')
   const pieces = document.getElementsByClassName('piece')
-  cellWidth = getComputedStyle(cells[0]).width
-  cellHeight = getComputedStyle(cells[0]).height
+  const cellWidth = getComputedStyle(cells[0]).width
+  const cellHeight = getComputedStyle(cells[0]).height
 
   for(let i = 0; i < pieces.length; i++){
     pieces[i].style.width = (parseFloat(cellWidth)*0.9) + 'px'
   }
 }
+function selectFirstPlayer(button){
+  let color = button.value
 
+  if(color === 'Por Sorte'){
+    const num = Math.floor(Math.random()*2)
+    num === 0 ? color = 'white' : false
+    num === 1 ? color = 'black' : false
+    button.value = color
+  }
+  rotateBoard(color)
+}
+function rotateBoard(color){
+  if(alreadyStarted){
+    return
+  }
+  let degrees
+  if(color === 'white'){
+    playerTexts[0].classList.remove('whiteH2')
+    playerTexts[0].classList.add('blackH2')
+    playerTexts[1].classList.remove('blackH2')
+    playerTexts[1].classList.add('whiteH2')
+    degrees = 'rotate(0deg)'
+    backGroundImage.setAttribute('src','images/board.png')
+  }else if(color === 'black'){
+    playerTexts[0].classList.remove('blackH2')
+    playerTexts[0].classList.add('whiteH2')
+    playerTexts[1].classList.remove('whiteH2')
+    playerTexts[1].classList.add('blackH2')
+    degrees = 'rotate(180deg)'
+    backGroundImage.setAttribute('src','images/boardInversed.png')
+  }
+  board.style.transform = degrees
 
+  let elementProperties
+  for(let i = 0; i < styleSheet.cssRules.length; i++) {
+    if(styleSheet.cssRules[i].selectorText === '.piece') {
+      elementProperties = styleSheet.cssRules[i];
+    } 
+  }
+  elementProperties.style.setProperty('transform', degrees);
+
+}
+function startGame(){
+  if(alreadyStarted){
+    return
+  }
+  const button = document.getElementsByClassName('playerSelect')[0]
+  if(button.value === 'black'){
+    playerOrder = 'black'
+    playerOpposite = 'white'
+  }else if(button.value === 'white'){
+    playerOrder = 'white'
+    playerOpposite = 'black'
+  }
+  rotateBoard(playerOrder)
+  alreadyStarted = true
+}
 
 
 

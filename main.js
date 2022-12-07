@@ -13,7 +13,7 @@ let playerOrder
 let playerOpposite
 let alreadyStarted = false
 
-const movingPieceAudio = new Audio('/audio/movePieceCroped.wav')
+const movingPieceAudio = new Audio('audio/movePieceCroped.wav')
 console.log(movingPieceAudio)
 
 class tile{

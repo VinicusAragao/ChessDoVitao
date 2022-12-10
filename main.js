@@ -3,6 +3,7 @@ const board = document.getElementsByClassName('board')[0]
 const playerTexts = document.getElementsByTagName('h2')
 const pieces = document.getElementsByClassName('piece')
 const backGroundImage = document.getElementsByClassName('backgroundImg')[0]
+const panel = document.getElementById('changePiecePannel')
 let tileColor = 'white'
 let lineStart = 'white'
 let boardMap = []
@@ -12,9 +13,9 @@ let grabedPiece
 let playerOrder
 let playerOpposite
 let alreadyStarted = false
+let setTimeoutsId = []
 
 const movingPieceAudio = new Audio('audio/movePieceCroped.wav')
-console.log(movingPieceAudio)
 
 class tile{
   constructor(element){
@@ -36,7 +37,6 @@ class piece{
     this.possibleMovesCondition = []
   }
   checkPossibleMoves(){
-    console.log('checando possibilidades...')
     const player = this.player
     const row = parseInt(this.position[0])
     const cell = parseInt(this.position[1])
@@ -53,33 +53,33 @@ class piece{
 
     switch(piece){
     case 'pawn':
-      passMove(row+(1*colorDiference),cell,'normal')
+      passMove(row+(1*colorDiference),cell,'mustBeFree')
       passMove(row+(2*colorDiference),cell,'neverPlayed')
       passMove(row+(1*colorDiference),cell-1,'attack')
       passMove(row+(1*colorDiference),cell+1,'attack')
     break
     case 'rook':
-        checkMoveWithCollision(row,cell,1,0)//up
-        checkMoveWithCollision(row,cell,0,1)//right
-        checkMoveWithCollision(row,cell,-1,0)//down
-        checkMoveWithCollision(row,cell,0,-1)//left
+      checkMoveWithCollision(row,cell,1,0)//up
+      checkMoveWithCollision(row,cell,0,1)//right
+      checkMoveWithCollision(row,cell,-1,0)//down
+      checkMoveWithCollision(row,cell,0,-1)//left
     break
     case 'knight':
-        passMove(row+2,cell+1,'normal')
-        passMove(row+2,cell-1,'normal')
-        passMove(row-2,cell+1,'normal')
-        passMove(row-2,cell-1,'normal')
+      passMove(row+2,cell+1,'normal')
+      passMove(row+2,cell-1,'normal')
+      passMove(row-2,cell+1,'normal')
+      passMove(row-2,cell-1,'normal')
 
-        passMove(row+1,cell+2,'normal')
-        passMove(row+1,cell-2,'normal')
-        passMove(row-1,cell+2,'normal')
-        passMove(row-1,cell-2,'normal') 
+      passMove(row+1,cell+2,'normal')
+      passMove(row+1,cell-2,'normal')
+      passMove(row-1,cell+2,'normal')
+      passMove(row-1,cell-2,'normal') 
     break
     case 'bishop':
-        checkMoveWithCollision(row,cell,1,-1)//topLeft
-        checkMoveWithCollision(row,cell,1,1)//topRight
-        checkMoveWithCollision(row,cell,-1,-1)//bottomLeft
-        checkMoveWithCollision(row,cell,-1,+1)//bottomRight
+      checkMoveWithCollision(row,cell,1,-1)//topLeft
+      checkMoveWithCollision(row,cell,1,1)//topRight
+      checkMoveWithCollision(row,cell,-1,-1)//bottomLeft
+      checkMoveWithCollision(row,cell,-1,+1)//bottomRight
     break
     case 'king':
       passMove(row+1,cell,'normal')//top
@@ -92,14 +92,14 @@ class piece{
       passMove(row-1,cell+1,'normal')//bottomRight
     break
     case 'queen':
-        checkMoveWithCollision(row,cell,1,0)//top
-        checkMoveWithCollision(row,cell,0,1)//right
-        checkMoveWithCollision(row,cell,-1,0)//bottom
-        checkMoveWithCollision(row,cell,0,-1)//left
-        checkMoveWithCollision(row,cell,1,-1)//topLeft
-        checkMoveWithCollision(row,cell,1,1)//topRight
-        checkMoveWithCollision(row,cell,-1,-1)//bottomLeft
-        checkMoveWithCollision(row,cell,-1,+1)//bottomRight
+      checkMoveWithCollision(row,cell,1,0)//top
+      checkMoveWithCollision(row,cell,0,1)//right
+      checkMoveWithCollision(row,cell,-1,0)//bottom
+      checkMoveWithCollision(row,cell,0,-1)//left
+      checkMoveWithCollision(row,cell,1,-1)//topLeft
+      checkMoveWithCollision(row,cell,1,1)//topRight
+      checkMoveWithCollision(row,cell,-1,-1)//bottomLeft
+      checkMoveWithCollision(row,cell,-1,+1)//bottomRight
     }
   }
 }
@@ -115,18 +115,14 @@ function checkMoveWithCollision(initialRow,initialCell,rowIncrement,cellIncremen
   let row = initialRow + rowIncrement
   let cell = initialCell + cellIncrement
   for(let i = 0; i < 9; i++){
-    console.log(i)
     if(isUndefined(row,cell)){
-      console.log(undefined)
       return
     }
     const object = boardMap[row][cell]
     if(object.containingPiece.player === playerOrder){
-      console.log('amigo')
       break
     }
     else if(object.containingPiece.player === playerOpposite){
-      console.log('inimigo')
       grabedPiece.possibleMoves.push(object)
       grabedPiece.possibleMovesCondition.push('collision')
       break
@@ -135,10 +131,7 @@ function checkMoveWithCollision(initialRow,initialCell,rowIncrement,cellIncremen
     grabedPiece.possibleMovesCondition.push('collision')
     row += rowIncrement
     cell += cellIncrement
-    console.log('nada')
-    console.log(row +' '+cell)
   }
-  console.log(grabedPiece.possibleMoves)
 }
 function passMove(row,cell,condition){
   if(isUndefined(row,cell)){
@@ -160,11 +153,19 @@ function passMove(row,cell,condition){
       return
     }
   }
+  else if(condition === 'mustBeFree'){
+    if(newTile.containingPiece !== 'none'){
+      return
+    }
+  }
   else if(condition === 'collision'){
     return
   }
   grabedPiece.possibleMoves.push(newTile)
   grabedPiece.possibleMovesCondition.push(condition)
+}
+function checkForCheck(){
+  
 }
 window.addEventListener('load',createBoard)
 function createBoard(){
@@ -303,17 +304,21 @@ function newPieceTile(){
         console.log(grabedPiece.possibleMoves)
         if(JSON.stringify(newTile) === JSON.stringify(grabedPiece.possibleMoves[i])){
           const condition = grabedPiece.possibleMovesCondition[i]
-          if(condition === 'attack' && newTile.containingPiece.player === playerOpposite){
-            movePiece(newPath,newTile)
-          }
-          else if(condition === 'neverPlayed' && grabedPiece.alreadyPlayed === false){
-            movePiece(newPath,newTile)
-          }
-          else if(condition === 'normal' || condition === 'collision'){
-            movePiece(newPath,newTile)
-          }
-          else{
-            return
+          switch(condition){
+            case 'attack':
+            case 'neverPlayed':
+            case 'normal':
+            case 'collision':
+            case 'mustBeFree':
+              if(grabedPiece.piece === 'pawn'){
+                if(newTile.row === 0 || newTile.row === 7){
+                  shownChangePawnPannel()
+                }
+              }
+              movePiece(newPath,newTile)
+            break
+            default:
+              return
           }
         }
       }
@@ -360,6 +365,7 @@ function movePiece(newPath,newTile){
     playerOpposite = 'black'
   }
   grabing = false
+  changePlayerAnimation()
 }
 window.addEventListener('resize', setSizes)
 function setSizes(){
@@ -414,24 +420,111 @@ function rotateBoard(color){
   elementProperties.style.setProperty('transform', degrees);
 
 }
-function startGame(){
+function startGame(playButton){
   if(alreadyStarted){
+    playAgain()
+    playButton.textContent = 'Jogar'
     return
   }
-  const button = document.getElementsByClassName('playerSelect')[0]
-  if(button.value === 'black'){
+  const playerButton = document.getElementsByClassName('playerSelect')[0]
+  if(playerButton.value === 'black'){
     playerOrder = 'black'
     playerOpposite = 'white'
-  }else if(button.value === 'white'){
+  }else if(playerButton.value === 'white'){
     playerOrder = 'white'
     playerOpposite = 'black'
   }
   rotateBoard(playerOrder)
+  changePlayerAnimation()
+  playButton.textContent = 'Resetar'
   alreadyStarted = true
+  initiateCountDown('white');
+  initiateCountDown('black');
 }
+function changePlayerAnimation(){
+  let activeText
+  let inactiveText
+  if(playerOrder === 'white'){
+    activeText = document.getElementsByClassName('whiteH2')[0]
+    inactiveText = document.getElementsByClassName('blackH2')[0]
+  }else if(playerOrder === 'black'){
+    activeText = document.getElementsByClassName('blackH2')[0]
+    inactiveText = document.getElementsByClassName('whiteH2')[0]
+  }
+  inactiveText.style.animation = 'none'
+  activeText.style.animation = 'changingPlayer 200ms 1 linear forwards'
+}
+function playAgain(){
+  tileColor = 'white'
+  lineStart = 'white'
+  boardMap = []
+  grabing = false
+  grabedTile = null
+  grabedPiece = null
+  playerOrder = null
+  playerOpposite = null
+  alreadyStarted = false
+  const rows = document.getElementsByClassName('row')
+  const rowsMax = document.getElementsByClassName('row').length
+  for(let i = 0; i < rowsMax;i++){
+    rows[0].remove()
+  }
+  playerTexts[0].style.animation = 'none'
+  playerTexts[0].setAttribute('data-after','')
+  playerTexts[1].style.animation = 'none'
+  playerTexts[1].setAttribute('data-after','')
+  for(let i = 0; i < setTimeoutsId.length;i++){
+    clearInterval(setTimeoutsId[i])
+  }
+  createBoard()
+}
+function shownChangePawnPannel(){
+  panel.style.display = 'flex'
+  const panelOptions = document.getElementsByClassName('changePieceOption')
 
+  panelOptions[0].children[0].setAttribute('src',`images/${playerOrder}Queen.png`)
+  panelOptions[1].children[0].setAttribute('src',`images/${playerOrder}Rook.png`)
+  panelOptions[2].children[0].setAttribute('src',`images/${playerOrder}Bishop.png`)
+  panelOptions[3].children[0].setAttribute('src',`images/${playerOrder}Knight.png`)
+  for(let i = 0;i < panelOptions.length; i++){
+    panelOptions[i].addEventListener('pointerdown',changePawn)    
+  }
+}
+function changePawn(){
+  grabedPiece.piece = this.dataset.type
+  grabedPiece.htmlElement.setAttribute('src',this.children[0].src)
+  grabedPiece.htmlElement.classList.add(this.dataset.type)
+  grabedPiece.htmlElement.classList.remove('pawn')
+  panel.style.display = 'none'
+}
+function initiateCountDown(player){
+  const text = document.getElementsByClassName(`${player}H2`)[0]
+  let time = document.getElementsByClassName('timeSelect')[0].value
+  text.setAttribute('data-after', time) 
+  if(time !== 'Infinito'){
+    time = (parseFloat(time)*60)-1
 
+    const interval = setInterval(function (){
+      if(player === playerOrder){
+        let minutes = parseInt(time / 60, 10);
+        let seconds = parseInt(time % 60, 10);
 
+        minutes = minutes < 10 ? '0' + minutes : minutes
+        seconds = seconds < 10 ? '0' + seconds : seconds
+
+        text.setAttribute('data-after',minutes + ':' + seconds)
+        if(time > 0){
+          time--
+        }
+        else if(time === 0){
+          console.log('over')
+          clearInterval(interval)
+        }
+      }
+    }, 1000);
+    setTimeoutsId.push(interval)
+  } 
+}
 
 // function grab(e){
 //   if(!grabing){

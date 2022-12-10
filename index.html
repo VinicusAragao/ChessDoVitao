@@ -19,13 +19,12 @@
       </section>
       <section class="optionsSection">
         <div class="btnContainer">
-          <button onclick="startGame()" class="playBtn">Jogar</button>
+          <button onclick="startGame(this)" class="playBtn">Jogar</button>
           <select class="timeSelect">
             <option>10:00</option>
             <option>05:00</option>
             <option>03:00</option>
             <option>01:00</option>
-            <option>00:30</option>
             <option>Infinito</option>
           </select>
           <select onchange="selectFirstPlayer(this)" class="playerSelect">
@@ -35,6 +34,12 @@
           </select>
         </div>
       </section>
+      <div id="changePiecePannel">
+        <div class="changePieceOption" data-type='queen'><img></div>
+        <div class="changePieceOption" data-type='rook'><img></div>
+        <div class="changePieceOption" data-type='bishop'><img></div>
+        <div class="changePieceOption" data-type='knight'><img></div>
+      </div>
     </main>
     <script type="text/javascript" src="main.js"></script>
   </body>
